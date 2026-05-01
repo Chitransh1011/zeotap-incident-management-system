@@ -44,18 +44,22 @@ function App() {
 
   async function transition(status) {
     setError("");
-    const response = await fetch(`${API}/incidents/${selectedId}/status`, {
-      method: "PATCH",
-      headers: apiHeaders(),
-      body: JSON.stringify({ status })
-    });
-    const body = await response.json();
-    if (!response.ok) {
-      setError(body.error || body.detail || "Status update failed");
-      return;
+    try {
+      const response = await fetch(`${API}/incidents/${selectedId}/status`, {
+        method: "PATCH",
+        headers: apiHeaders(),
+        body: JSON.stringify({ status })
+      });
+      const body = await response.json();
+      if (!response.ok) {
+        setError(body.error || body.detail || "Status update failed");
+        return;
+      }
+      setDetail(body);
+      loadIncidents();
+    } catch {
+      setError("Could not reach backend. Check that http://localhost:4000 is running and CORS is enabled.");
     }
-    setDetail(body);
-    loadIncidents();
   }
 
   async function submitRca(event) {
@@ -63,17 +67,21 @@ function App() {
     setError("");
     const form = new FormData(event.currentTarget);
     const payload = Object.fromEntries(form.entries());
-    const response = await fetch(`${API}/incidents/${selectedId}/rca`, {
-      method: "POST",
-      headers: apiHeaders(),
-      body: JSON.stringify(payload)
-    });
-    const body = await response.json();
-    if (!response.ok) {
-      setError(body.error || body.detail || "RCA submission failed");
-      return;
+    try {
+      const response = await fetch(`${API}/incidents/${selectedId}/rca`, {
+        method: "POST",
+        headers: apiHeaders(),
+        body: JSON.stringify(payload)
+      });
+      const body = await response.json();
+      if (!response.ok) {
+        setError(body.error || body.detail || "RCA submission failed");
+        return;
+      }
+      setDetail(body);
+    } catch {
+      setError("Could not reach backend. Check that http://localhost:4000 is running and CORS is enabled.");
     }
-    setDetail(body);
   }
 
   return (

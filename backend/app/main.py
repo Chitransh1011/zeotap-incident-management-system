@@ -62,21 +62,38 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=[settings.cors_origin, "http://localhost:5173"],
     allow_credentials=False,
-    allow_methods=["GET", "POST", "PATCH", "OPTIONS"],
-    allow_headers=["Content-Type", "X-IMS-API-Key"],
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 
 @app.middleware("http")
 async def security_and_body_guard(request: Request, call_next):
+    if request.method == "OPTIONS":
+        response = Response(status_code=204)
+        apply_cors_headers(request, response)
+        return response
+
     content_length = request.headers.get("content-length")
     if content_length and int(content_length) > settings.max_body_bytes:
-        return Response('{"error":"Request body too large"}', status_code=413, media_type="application/json")
+        response = Response('{"error":"Request body too large"}', status_code=413, media_type="application/json")
+        apply_cors_headers(request, response)
+        return response
+
     response = await call_next(request)
+    apply_cors_headers(request, response)
+    return response
+
+
+def apply_cors_headers(request: Request, response: Response) -> None:
+    origin = request.headers.get("origin")
+    if origin in {settings.cors_origin, "http://localhost:5173"}:
+        response.headers["Access-Control-Allow-Origin"] = origin
+    response.headers["Access-Control-Allow-Methods"] = "GET,POST,PATCH,OPTIONS"
+    response.headers["Access-Control-Allow-Headers"] = "Content-Type,X-IMS-API-Key"
     response.headers["X-Content-Type-Options"] = "nosniff"
     response.headers["Referrer-Policy"] = "no-referrer"
     response.headers["Cache-Control"] = "no-store"
-    return response
 
 
 def require_api_key(request: Request, x_ims_api_key: str | None = Header(default=None)) -> None:
