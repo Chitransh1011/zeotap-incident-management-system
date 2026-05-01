@@ -5,7 +5,7 @@ import { fileURLToPath } from "node:url";
 const root = fileURLToPath(new URL("..", import.meta.url));
 const githubUrl = process.env.GITHUB_URL ?? "TODO_REPLACE_WITH_GITHUB_LINK";
 const inputPath = path.join(root, "docs", "SUBMISSION.md");
-const outputPath = path.join(root, "Chitransh - Infrastructure - SRE Intern Assignment.pdf");
+const outputPath = path.join(root, "Chitransh Prasanna - Infrastructure - SRE Intern Assignment.pdf");
 
 const markdown = fs.readFileSync(inputPath, "utf8").replace("TODO_REPLACE_WITH_GITHUB_LINK", githubUrl);
 const lines = markdownToLines(markdown);
