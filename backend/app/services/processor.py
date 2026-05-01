@@ -1,4 +1,5 @@
 import asyncio
+import traceback
 from datetime import datetime, timezone
 from uuid import UUID, uuid4
 
@@ -31,13 +32,23 @@ class SignalProcessor:
         for task in (self.worker_task, self.metrics_task):
             if task:
                 task.cancel()
-        await asyncio.gather(*(task for task in (self.worker_task, self.metrics_task) if task), return_exceptions=True)
+
+        await asyncio.gather(
+            *(task for task in (self.worker_task, self.metrics_task) if task),
+            return_exceptions=True,
+        )
 
     def enqueue(self, signal: dict) -> bool:
         try:
-            self.queue.put_nowait({**signal, "receivedAt": datetime.now(timezone.utc)})
+            self.queue.put_nowait(
+                {
+                    **signal,
+                    "receivedAt": datetime.now(timezone.utc),
+                }
+            )
             self.metrics["accepted"] += 1
             return True
+
         except asyncio.QueueFull:
             self.metrics["rejected"] += 1
             return False
@@ -45,46 +56,83 @@ class SignalProcessor:
     async def worker(self) -> None:
         while True:
             signal = await self.queue.get()
+
             try:
                 await self.process_signal(signal)
                 self.metrics["processed"] += 1
+
+            except Exception as e:
+                print(f"[worker-error] Failed processing signal: {e}", flush=True)
+                traceback.print_exc()
+
             finally:
                 self.queue.task_done()
 
     async def print_metrics(self) -> None:
         while True:
             await asyncio.sleep(5)
+
             accepted = self.metrics["accepted"]
             processed = self.metrics["processed"]
+
             self.metrics["accepted"] = 0
             self.metrics["processed"] = 0
+
             print(
-                f"[metrics] accepted={accepted / 5}/sec processed={processed / 5}/sec "
+                f"[metrics] accepted={accepted / 5}/sec "
+                f"processed={processed / 5}/sec "
                 f"queue={self.queue.qsize()}",
                 flush=True,
             )
 
     async def process_signal(self, signal: dict) -> None:
         work_item = await self.find_or_create_work_item(signal)
+
         linked_signal = {
             **signal,
             "workItemId": UUID(work_item["id"]),
             "receivedAt": signal["receivedAt"],
         }
+
         await self.store.append_raw_signal(linked_signal)
         await self.store.update_aggregations(linked_signal)
         await self.redis.upsert_dashboard_item(work_item)
 
     async def find_or_create_work_item(self, signal: dict) -> dict:
         existing_id = await self.redis.get_debounce_work_item(signal["componentId"])
+
         if existing_id:
-            updated = await self.store.increment_work_item_signal(existing_id, signal["receivedAt"])
+            updated = await self.store.increment_work_item_signal(
+                existing_id,
+                signal["receivedAt"],
+            )
             if updated:
                 return updated
 
+        work_item_id = uuid4()
+
+        acquired = await self.redis.try_set_debounce_work_item(
+            signal["componentId"],
+            work_item_id,
+            self.debounce_window_seconds,
+        )
+
+        if not acquired:
+            existing_id = await self.redis.get_debounce_work_item(
+                signal["componentId"]
+            )
+
+            if existing_id:
+                updated = await self.store.increment_work_item_signal(
+                    existing_id,
+                    signal["receivedAt"],
+                )
+                if updated:
+                    return updated
+
         alert = get_alert_strategy(signal["componentType"]).evaluate(signal)
         now = signal["receivedAt"]
-        work_item_id = uuid4()
+
         item = {
             "id": work_item_id,
             "componentId": signal["componentId"],
@@ -102,10 +150,7 @@ class SignalProcessor:
             "createdAt": now,
             "updatedAt": now,
         }
+
         saved = await self.store.create_work_item(item)
-        await self.redis.set_debounce_work_item(
-            signal["componentId"],
-            work_item_id,
-            self.debounce_window_seconds,
-        )
+
         return {**saved, "id": str(saved["id"])}

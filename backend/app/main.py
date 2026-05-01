@@ -1,7 +1,7 @@
 from contextlib import asynccontextmanager
 from typing import Any
 from uuid import UUID
-
+from typing import Union, List
 from fastapi import Depends, FastAPI, Header, HTTPException, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
@@ -112,10 +112,19 @@ async def health():
 
 
 @app.post("/signals", status_code=202, dependencies=[Depends(require_api_key)])
-async def ingest_signals(request: Request, body: Signal | list[Signal]):
+async def ingest_signals(
+    request: Request,
+    body: Union[Signal, List[Signal]]
+):
     signals = body if isinstance(body, list) else [body]
+
     client_ip = request.client.host if request.client else "unknown"
-    allowed = await redis_store.allow_rate(client_ip, settings.rate_limit_per_second, len(signals))
+    allowed = await redis_store.allow_rate(
+        client_ip,
+        settings.rate_limit_per_second,
+        len(signals)
+    )
+
     if not allowed:
         raise HTTPException(status_code=429, detail="Rate limit exceeded")
 
@@ -124,11 +133,14 @@ async def ingest_signals(request: Request, body: Signal | list[Signal]):
         if not processor.enqueue(signal.model_dump()):
             raise HTTPException(
                 status_code=503,
-                detail={"error": "Ingestion queue saturated", "accepted": accepted},
+                detail={
+                    "error": "Ingestion queue saturated",
+                    "accepted": accepted
+                },
             )
         accepted += 1
-    return {"accepted": accepted}
 
+    return {"accepted": accepted}
 
 @app.get("/incidents")
 async def list_incidents():
