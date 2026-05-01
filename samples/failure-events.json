@@ -1,0 +1,32 @@
+[
+  {
+    "componentId": "RDBMS_PRIMARY_01",
+    "componentType": "RDBMS",
+    "message": "Connection pool exhausted and write latency above 5s",
+    "severity": "ERROR",
+    "payload": {
+      "region": "ap-south-1",
+      "latencyMs": 5120,
+      "connections": 500
+    }
+  },
+  {
+    "componentId": "MCP_HOST_07",
+    "componentType": "MCP_HOST",
+    "message": "MCP host cannot reach primary RDBMS",
+    "severity": "ERROR",
+    "payload": {
+      "region": "ap-south-1",
+      "dependency": "RDBMS_PRIMARY_01"
+    }
+  },
+  {
+    "componentId": "CACHE_CLUSTER_01",
+    "componentType": "CACHE",
+    "message": "Cache miss ratio above threshold after database failover",
+    "severity": "WARN",
+    "payload": {
+      "missRatio": 0.82
+    }
+  }
+]

@@ -1,0 +1,14 @@
+{
+  "name": "zeotap-ims-assignment",
+  "version": "1.0.0",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "start": "docker compose up --build",
+    "backend:start": "npm --prefix backend start",
+    "backend:test": "npm --prefix backend test",
+    "frontend:install": "npm --prefix frontend install",
+    "frontend:build": "npm --prefix frontend run build",
+    "pdf": "node scripts/generate-submission-pdf.js"
+  }
+}
