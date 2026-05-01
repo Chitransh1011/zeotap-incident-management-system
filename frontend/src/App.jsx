@@ -46,7 +46,7 @@ function App() {
     setError("");
     try {
       const response = await fetch(`${API}/incidents/${selectedId}/status`, {
-        method: "PATCH",
+        method: "POST",
         headers: apiHeaders(),
         body: JSON.stringify({ status })
       });

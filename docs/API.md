@@ -71,7 +71,7 @@ The response includes the structured work item plus linked raw signals.
 ## Transition Status
 
 ```bash
-curl -X PATCH http://localhost:4000/incidents/<incident-id>/status \
+curl -X POST http://localhost:4000/incidents/<incident-id>/status \
   -H "Content-Type: application/json" \
   -d '{ "status": "INVESTIGATING" }'
 ```

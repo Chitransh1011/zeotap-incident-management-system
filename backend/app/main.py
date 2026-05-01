@@ -151,6 +151,11 @@ async def transition_incident(incident_id: UUID, body: StatusUpdate):
         raise HTTPException(status_code=400, detail=str(error)) from error
 
 
+@app.post("/incidents/{incident_id}/status", dependencies=[Depends(require_api_key)])
+async def transition_incident_post(incident_id: UUID, body: StatusUpdate):
+    return await transition_incident(incident_id, body)
+
+
 @app.post("/incidents/{incident_id}/rca", dependencies=[Depends(require_api_key)])
 async def submit_rca(incident_id: UUID, body: RcaPayload):
     try:
