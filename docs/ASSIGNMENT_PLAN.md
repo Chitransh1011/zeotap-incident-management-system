@@ -5,15 +5,15 @@
 - High-throughput ingestion: `POST /signals` supports single and batch JSON payloads.
 - Memory management: bounded async queue with saturated `503` response.
 - Debouncing: component-based 10 second window links many raw signals to one work item.
-- Data lake: raw signals stored in JSONL audit log.
-- Source of truth: structured work items and RCA records stored separately with transactional mutex updates.
-- Hot path cache: active incident dashboard state maintained in memory.
-- Aggregations: per-minute component/severity counters.
+- Data lake: raw signals stored in PostgreSQL JSONB audit table.
+- Source of truth: structured work items and RCA records stored in PostgreSQL with transactional row locks.
+- Hot path cache: active incident dashboard state maintained in Redis.
+- Aggregations: per-minute component/severity counters stored in PostgreSQL.
 - Workflow engine: Strategy pattern for alerting severity and State pattern for transitions.
 - Mandatory RCA: close transition is blocked unless RCA is complete.
 - MTTR: calculated on RCA submission.
 - UI: React live feed, incident detail, raw signals, status transition, RCA form.
-- Resilience: rate limiter, retrying writes, `/health`, throughput logs.
+- Resilience: Redis-backed rate limiter, retrying writes, `/health`, throughput logs.
 - Tests: RCA validation and close rejection covered by unit tests.
 
 ## Prompts Used

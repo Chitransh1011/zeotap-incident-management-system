@@ -12,7 +12,7 @@ endobj
 << /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold >>
 endobj
 5 0 obj
-<< /Length 1827 >>
+<< /Length 1881 >>
 stream
 BT
 /F1 10 Tf
@@ -56,7 +56,7 @@ T*
 /F1 10 Tf
 (ingestion, processing, storage, alerting workflow, RCA enforcement, and dashboard) Tj
 T*
-/F1 10 Tf
+/F2 11 Tf
 (operations.) Tj
 T*
 T*
@@ -68,10 +68,10 @@ T*
 (Docker Compose:) Tj
 T*
 T*
-/F1 10 Tf
+/F2 11 Tf
 (bash) Tj
 T*
-/F1 10 Tf
+/F2 11 Tf
 (docker compose up --build) Tj
 T*
 T*
@@ -89,7 +89,7 @@ T*
 T*
 T*
 /F1 10 Tf
-(  - Async signal ingestion API.) Tj
+(  - Python FastAPI async signal ingestion API.) Tj
 T*
 /F1 10 Tf
 (  - Bounded in-memory queue for backpressure.) Tj
@@ -101,16 +101,16 @@ T*
 (  - Debouncing by component ID within a 10 second window.) Tj
 T*
 /F1 10 Tf
-(  - Raw signal audit log for high-volume payloads.) Tj
+(  - PostgreSQL raw signal audit log for high-volume payloads.) Tj
 T*
 /F1 10 Tf
-(  - Structured work-item and RCA source of truth.) Tj
+(  - PostgreSQL structured work-item and RCA source of truth.) Tj
 T*
 /F1 10 Tf
-(  - Hot dashboard cache for active incident views.) Tj
+(  - Redis hot dashboard cache for active incident views.) Tj
 T*
 /F1 10 Tf
-(  - Timeseries aggregation sink.) Tj
+(  - PostgreSQL timeseries aggregation sink.) Tj
 T*
 /F1 10 Tf
 (  - Alerting Strategy pattern for component severity/routing.) Tj
@@ -131,7 +131,7 @@ endobj
 << /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents 5 0 R >>
 endobj
 7 0 obj
-<< /Length 1704 >>
+<< /Length 1738 >>
 stream
 BT
 /F1 10 Tf
@@ -140,7 +140,7 @@ BT
 /F1 10 Tf
 (- React dashboard with live feed, incident detail, raw signals, status actions, and RCA) Tj
 T*
-/F1 10 Tf
+/F2 11 Tf
 (form.) Tj
 T*
 /F1 10 Tf
@@ -170,7 +170,7 @@ T*
 (  - Mutex-protected work-item updates to avoid status/RCA race conditions.) Tj
 T*
 /F1 10 Tf
-(  - Dockerized backend and frontend.) Tj
+(  - Dockerized backend, frontend, PostgreSQL, and Redis.) Tj
 T*
 T*
 /F2 11 Tf
@@ -213,14 +213,14 @@ T*
 (Backend unit tests passed:) Tj
 T*
 T*
-/F1 10 Tf
+/F2 11 Tf
 (bash) Tj
 T*
-/F1 10 Tf
+/F2 11 Tf
 (cd backend) Tj
 T*
-/F1 10 Tf
-(npm test) Tj
+/F2 11 Tf
+(python -m pytest tests) Tj
 T*
 T*
 T*
@@ -228,16 +228,16 @@ T*
 (Frontend production build passed:) Tj
 T*
 T*
-/F1 10 Tf
+/F2 11 Tf
 (bash) Tj
 T*
-/F1 10 Tf
+/F2 11 Tf
 (cd frontend) Tj
 T*
-/F1 10 Tf
+/F2 11 Tf
 (npm install) Tj
 T*
-/F1 10 Tf
+/F2 11 Tf
 (npm run build) Tj
 T*
 T*
@@ -256,7 +256,7 @@ endobj
 << /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents 7 0 R >>
 endobj
 9 0 obj
-<< /Length 444 >>
+<< /Length 443 >>
 stream
 BT
 /F1 10 Tf
@@ -276,7 +276,7 @@ T*
 /F1 10 Tf
 (samples/failure-events.json simulates an RDBMS outage followed by MCP host and cache) Tj
 T*
-/F1 10 Tf
+/F2 11 Tf
 (failures.) Tj
 T*
 T*
@@ -284,12 +284,11 @@ T*
 (Run:) Tj
 T*
 T*
-/F1 10 Tf
+/F2 11 Tf
 (bash) Tj
 T*
-/F1 10 Tf
-(node samples/simulate-failure.js) Tj
-T*
+/F2 11 Tf
+(python samples/simulate_failure.py) Tj
 T*
 T*
 ET
@@ -306,13 +305,13 @@ xref
 0000000128 00000 n 
 0000000198 00000 n 
 0000000273 00000 n 
-0000002152 00000 n 
-0000002288 00000 n 
-0000004044 00000 n 
-0000004180 00000 n 
-0000004675 00000 n 
+0000002206 00000 n 
+0000002342 00000 n 
+0000004132 00000 n 
+0000004268 00000 n 
+0000004762 00000 n 
 trailer
 << /Size 11 /Root 1 0 R >>
 startxref
-4812
+4899
 %%EOF

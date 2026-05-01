@@ -30,14 +30,14 @@ Frontend: http://localhost:5173
 
 ## What Was Built
 
-- Async signal ingestion API.
+- Python FastAPI async signal ingestion API.
 - Bounded in-memory queue for backpressure.
 - Token-bucket rate limiter on ingestion.
 - Debouncing by component ID within a 10 second window.
-- Raw signal audit log for high-volume payloads.
-- Structured work-item and RCA source of truth.
-- Hot dashboard cache for active incident views.
-- Timeseries aggregation sink.
+- PostgreSQL raw signal audit log for high-volume payloads.
+- PostgreSQL structured work-item and RCA source of truth.
+- Redis hot dashboard cache for active incident views.
+- PostgreSQL timeseries aggregation sink.
 - Alerting Strategy pattern for component severity/routing.
 - State transition validation for `OPEN -> INVESTIGATING -> RESOLVED -> CLOSED`.
 - Mandatory RCA before closing incidents.
@@ -53,7 +53,7 @@ Frontend: http://localhost:5173
 - Configurable CORS origin.
 - Security headers for content-type, referrer policy, and no-store cache behavior.
 - Mutex-protected work-item updates to avoid status/RCA race conditions.
-- Dockerized backend and frontend.
+- Dockerized backend, frontend, PostgreSQL, and Redis.
 
 ## Documentation Included
 
@@ -73,7 +73,7 @@ Backend unit tests passed:
 
 ```bash
 cd backend
-npm test
+python -m pytest tests
 ```
 
 Frontend production build passed:
@@ -97,5 +97,5 @@ Backend API smoke test passed using sample failure events:
 Run:
 
 ```bash
-node samples/simulate-failure.js
+python samples/simulate_failure.py
 ```

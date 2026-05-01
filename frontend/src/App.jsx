@@ -51,7 +51,7 @@ function App() {
     });
     const body = await response.json();
     if (!response.ok) {
-      setError(body.error);
+      setError(body.error || body.detail || "Status update failed");
       return;
     }
     setDetail(body);
@@ -70,7 +70,7 @@ function App() {
     });
     const body = await response.json();
     if (!response.ok) {
-      setError(body.error);
+      setError(body.error || body.detail || "RCA submission failed");
       return;
     }
     setDetail(body);

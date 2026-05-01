@@ -98,4 +98,4 @@ curl -X POST http://localhost:4000/incidents/<incident-id>/rca \
 curl http://localhost:4000/aggregations
 ```
 
-Returns minute-level counters by component and severity.
+Returns minute-level PostgreSQL counters by component and severity.

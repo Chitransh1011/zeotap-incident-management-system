@@ -36,7 +36,7 @@ This is intentionally lower than direct RDBMS failure (`P0`) but higher than cac
 1. MCP host emits repeated signals.
 2. Ingestion API accepts the signals into the bounded queue.
 3. Debouncing creates one incident per affected MCP host inside the 10 second window.
-4. Every raw signal is linked to that incident in the raw signal lake.
+4. Every raw signal is linked to that incident in PostgreSQL `raw_signals`.
 5. Platform on-call moves the incident through `OPEN -> INVESTIGATING -> RESOLVED`.
 6. A complete RCA is required before `CLOSED`.
 

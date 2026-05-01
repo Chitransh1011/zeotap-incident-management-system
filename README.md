@@ -11,26 +11,26 @@ flowchart LR
     Producer["Failure simulator / clients"] -->|"POST /signals JSON"| API["Ingestion API\nrate limited"]
     API --> Queue["Bounded in-memory queue\nbackpressure"]
     Queue --> Worker["Async processor\nretrying writes"]
-    Worker --> Raw["Raw signal lake\nNoSQL-style JSONL"]
-    Worker --> Truth["Source of truth\ntransactional work items + RCA"]
-    Worker --> Hot["Hot dashboard cache"]
-    Worker --> Agg["Timeseries aggregations"]
+    Worker --> Raw["PostgreSQL raw_signals\nJSONB audit log"]
+    Worker --> Truth["PostgreSQL work_items\ntransactional RCA"]
+    Worker --> Hot["Redis hot dashboard cache"]
+    Worker --> Agg["PostgreSQL aggregations"]
     UI["React dashboard"] -->|"REST polling"| API
     API --> UI
 ```
 
 ## Tech Stack
 
-- **Backend:** Node.js HTTP server, async worker queue, mutex-based transactional updates, `node:test`.
+- **Backend:** Python FastAPI service, `asyncio` worker queue, async PostgreSQL driver, Redis, `pytest`.
 - **Frontend:** React dashboard served by Vite.
-- **Storage model:** File-backed development adapters that mirror the required production separation:
-  - `raw-signals.jsonl`: high-volume NoSQL/data-lake audit log.
-  - `work-items.json`: source of truth for incidents and RCA records.
-  - `aggregations.json`: timeseries aggregation buckets.
-  - in-memory cache for live dashboard state.
-- **Containerization:** Docker Compose for backend and frontend.
+- **Storage model:**
+  - PostgreSQL `raw_signals`: high-volume JSONB audit log.
+  - PostgreSQL `work_items`: transactional source of truth for incidents and RCA records.
+  - Redis: rate limiting, debounce state, and hot dashboard cache.
+  - PostgreSQL `aggregations`: timeseries counters.
+- **Containerization:** Docker Compose for backend, frontend, PostgreSQL, and Redis.
 
-Production equivalents would be Kafka/NATS for ingestion buffering, MongoDB/S3/ClickHouse for raw signal lake, Postgres for source of truth, Redis for hot dashboard state, and TimescaleDB/ClickHouse for aggregations.
+Production equivalents would add Kafka/NATS for ingestion buffering and ClickHouse/S3 for long-term raw signal analytics, while keeping PostgreSQL for transactional incident state and Redis for hot-path cache/rate limiting.
 
 ## Repository Structure
 
@@ -80,12 +80,14 @@ Services:
 - Backend: [http://localhost:4000](http://localhost:4000)
 - Frontend: [http://localhost:5173](http://localhost:5173)
 
-Local backend without Docker:
+Local backend without Docker requires local PostgreSQL and Redis:
 
 ```bash
 cd backend
-npm install
-npm start
+python -m venv .venv
+.venv\Scripts\activate
+pip install -r requirements.txt
+uvicorn app.main:app --host 0.0.0.0 --port 4000
 ```
 
 Local frontend without Docker:
@@ -102,13 +104,13 @@ Run backend tests:
 
 ```bash
 cd backend
-npm test
+python -m pytest tests
 ```
 
 Simulate an RDBMS outage followed by MCP host failures:
 
 ```bash
-node samples/simulate-failure.js
+python samples/simulate_failure.py
 ```
 
 ## Documentation
@@ -148,5 +150,5 @@ MTTR is calculated from RCA `startTime` to `endTime` when the RCA is submitted.
 - Strategy pattern for component-specific alert severity.
 - State pattern for lifecycle transitions.
 - Console throughput metrics every 5 seconds.
-- File-backed sinks make the project runnable without external cloud services while keeping the production data boundaries explicit.
+- PostgreSQL and Redis are included in Docker Compose so the assignment uses real infrastructure components.
 - Optional API key, body-size guard, configurable CORS, and security headers.

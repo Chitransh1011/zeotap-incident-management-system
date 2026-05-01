@@ -4,7 +4,7 @@
 
 ```bash
 cd backend
-npm test
+python -m pytest tests
 ```
 
 Covered:
@@ -39,7 +39,7 @@ curl http://localhost:4000/health
 Generate sample incidents:
 
 ```bash
-node samples/simulate-failure.js
+python samples/simulate_failure.py
 ```
 
 Open the dashboard:
@@ -70,7 +70,7 @@ Invoke-RestMethod -Uri http://localhost:4000/incidents
 Start backend with:
 
 ```bash
-INGEST_API_KEY=change-me npm start
+INGEST_API_KEY=change-me uvicorn app.main:app --host 0.0.0.0 --port 4000
 ```
 
 Then verify unauthenticated ingestion is rejected:
