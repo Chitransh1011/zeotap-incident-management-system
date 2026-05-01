@@ -2,11 +2,11 @@
 
 ## Candidate
 
-Name: Chitransh
+Name: Chitransh Prasanna
 
 Role: Infrastructure / SRE Intern
 
-GitHub Repository: TODO_REPLACE_WITH_GITHUB_LINK
+GitHub Repository: https://github.com/Chitransh1011/zeotap-incident-management-system
 
 Deadline: 6 May 2026
 
